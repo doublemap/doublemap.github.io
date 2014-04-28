@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[My Octopress Blog]]></title>
+  <title><![CDATA[DoubleMap Engineering]]></title>
   <link href="http://doublemap.github.io/atom.xml" rel="self"/>
   <link href="http://doublemap.github.io/"/>
-  <updated>2014-04-28T17:19:56-04:00</updated>
+  <updated>2014-04-28T17:52:53-04:00</updated>
   <id>http://doublemap.github.io/</id>
   <author>
-    <name><![CDATA[Your Name]]></name>
+    <name><![CDATA[The DoubleMap team]]></name>
     
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
