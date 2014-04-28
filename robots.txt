@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: 
+
+Sitemap: http://doublemap.github.io/sitemap.xml 
