@@ -4,7 +4,7 @@
   <title><![CDATA[DoubleMap Engineering]]></title>
   <link href="http://doublemap.github.io/atom.xml" rel="self"/>
   <link href="http://doublemap.github.io/"/>
-  <updated>2014-04-30T15:45:26-04:00</updated>
+  <updated>2014-04-30T17:16:20-04:00</updated>
   <id>http://doublemap.github.io/</id>
   <author>
     <name><![CDATA[The DoubleMap team]]></name>
@@ -24,7 +24,7 @@ This past week, we here at DoubleMap made a big change that users probably
 by MapBox with OpenStreetMap data.</p>
 
 <p>We have hundreds of thousands of hits per month to our online maps from people
-using our real-time bus tracking to find out where there bus is. This number
+using our real-time bus tracking to find out where their bus is. This number
 doesn&rsquo;t even include transit riders using their agency&rsquo;s custom app or public
 TV displays.</p>
 
