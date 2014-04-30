@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[DoubleMap Engineering]]></title>
-  <link href="http://doublemap.github.io/atom.xml" rel="self"/>
+  <title><![CDATA[Category: Javascript | DoubleMap Engineering]]></title>
+  <link href="http://doublemap.github.io/blog/categories/javascript/atom.xml" rel="self"/>
   <link href="http://doublemap.github.io/"/>
   <updated>2014-04-30T15:26:53-04:00</updated>
   <id>http://doublemap.github.io/</id>
@@ -18,7 +18,7 @@
     <link href="http://doublemap.github.io/blog/2014/04/29/porting-600k-map-views-to-openstreetmap/"/>
     <updated>2014-04-29T10:25:45-04:00</updated>
     <id>http://doublemap.github.io/blog/2014/04/29/porting-600k-map-views-to-openstreetmap</id>
-    <content type="html"><![CDATA[<p><img class="right" src="http://doublemap.github.io/images/doublemap-plus-mapbox.png">
+    <content type="html"><![CDATA[<p><img class="right" src="/images/doublemap-plus-mapbox.png">
 This past week, we here at DoubleMap made a big change that users probably
 <em>won&rsquo;t</em> notice. Instead of Google Maps, all of our public maps are now powered
 by MapBox with OpenStreetMap data.</p>
@@ -116,10 +116,10 @@ they&rsquo;ll handle all the data and rendering as needed.</p>
 
 <p>Here&rsquo;s our result:</p>
 
-<p><img src="http://doublemap.github.io/images/osm-google-comparison.png"></p>
+<p><img src="/images/osm-google-comparison.png"></p>
 
 <p>Our custom style is designed to be muted with a limited color palette to let
-our agencies&#8217; custom route colors pop when overlaid. I hope to write about
+our agencies' custom route colors pop when overlaid. I hope to write about
 TileMill 2 in the future, but right now it&rsquo;s in &ldquo;experimental&rdquo; status.</p>
 
 <h2>Porting the source code</h2>
@@ -132,7 +132,7 @@ Google Maps API so we were essentially doing the reverse of what we had
 done in the past. All of the concepts mapped almost 1-to-1, and there was
 nothing that Leaflet lacked in terms of functionality.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -153,29 +153,36 @@ nothing that Leaflet lacked in terms of functionality.</p>
 <span class='line-number'>19</span>
 <span class='line-number'>20</span>
 <span class='line-number'>21</span>
-</pre></td><td class='code'><pre><code class='diff'><span class='line'><span class="gd">-    r.polyline = new google.maps.Polyline({</span>
-</span><span class='line'><span class="gd">-        path: points,</span>
-</span><span class='line'><span class="gd">-        map: r.visible ? map : null,</span>
-</span><span class='line'><span class="gd">-        strokeColor: &quot;#&quot;+r.color,</span>
-</span><span class='line'><span class="gd">-        strokeOpacity: 0.6,</span>
-</span><span class='line'><span class="gd">-        strokeWeight: 4,</span>
-</span><span class='line'><span class="gd">-        zIndex: 1</span>
-</span><span class='line'><span class="gd">-    })</span>
-</span><span class='line'><span class="gd">-    google.maps.event.addListener(r.polyline, &#39;mouseover&#39;,</span>
-</span><span class='line'><span class="gd">-        function(routeId) {</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='diff'><span class='line'>&amp;ndash;    r.polyline = new google.maps.Polyline({
+</span><span class='line'>&amp;ndash;        path: points,
+</span><span class='line'>&amp;ndash;        map: r.visible ? map : null,
+</span><span class='line'>&amp;ndash;        strokeColor: &amp;ldquo;#&amp;rdquo;+r.color,
+</span><span class='line'>&amp;ndash;        strokeOpacity: 0.6,
+</span><span class='line'>&amp;ndash;        strokeWeight: 4,
+</span><span class='line'>&amp;ndash;        zIndex: 1
+</span><span class='line'>&amp;ndash;    })
+</span><span class='line'>&amp;ndash;    google.maps.event.addListener(r.polyline, &amp;lsquo;mouseover&amp;rsquo;,
+</span><span class='line'>&amp;ndash;        function(routeId) {
 </span><span class='line'><span class="gi">+    r.polyline = new L.Polyline(points, {</span>
-</span><span class='line'><span class="gi">+        color: &quot;#&quot;+r.color,</span>
+</span><span class='line'><span class="gi">+        color: &amp;ldquo;#&amp;rdquo;+r.color,</span>
 </span><span class='line'><span class="gi">+        opacity: 0.6,</span>
 </span><span class='line'><span class="gi">+        weight: 4</span>
 </span><span class='line'><span class="gi">+    });</span>
 </span><span class='line'><span class="gi">+    if(r.visible)</span>
 </span><span class='line'><span class="gi">+        map.addLayer(r.polyline);</span>
 </span><span class='line'><span class="gi">+</span>
-</span><span class='line'><span class="gi">+    r.polyline.on(&#39;mouseover&#39;, function(routeId) {</span>
-</span><span class='line'>             return function () { highlightRoute(routeId, true); };
-</span><span class='line'>         }(r.id));
-</span></code></pre></td></tr></table></div></figure>
-
+</span><span class='line'><span class="gi">+    r.polyline.on(&amp;lsquo;mouseover&amp;rsquo;, function(routeId) {&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'>&lt;pre&gt;&lt;code&gt;         return function () { highlightRoute(routeId, true); };
+</span><span class='line'>     }(r.id));
+</span><span class='line'>&lt;/code&gt;&lt;/pre&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
 <p>This above snippet shows how a bit of our polyline code changed.</p>
 
