@@ -5,12 +5,12 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Blog Archive - DoubleMap Engineering</title>
+  <title>Everyone Panic! Almost Free Downtime Phone Alerts - DoubleMap Engineering</title>
   <meta name="author" content="The DoubleMap team">
 
   
-  <meta name="description" content="Blog Archive 2014 Everyone Panic! Almost Free Downtime Phone Alerts
-May 29 2014 posted in Uptime Robot, appengine, python, twilio Porting 600k Map &hellip;">
+  <meta name="description" content="Uptime Robot (free) + App Engine (free) + Twilio (cheap) = almost free
+downtime alerts! Uptime Robot notices that your website is not responding. &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -19,7 +19,7 @@ May 29 2014 posted in Uptime Robot, appengine, python, twilio Porting 600k Map &
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://doublemap.github.io/blog/archives">
+  <link rel="canonical" href="http://doublemap.github.io/blog/2014/05/29/everyone-panic">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="DoubleMap Engineering" type="application/atom+xml">
@@ -77,49 +77,123 @@ May 29 2014 posted in Uptime Robot, appengine, python, twilio Porting 600k Map &
   <div id="main">
     <div id="content">
       <div>
-<article role="article">
+<article class="hentry" role="article">
   
   <header>
-    <h1 class="entry-title">Blog Archive</h1>
+    
+      <h1 class="entry-title">Everyone Panic! Almost Free Downtime Phone Alerts</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-05-29T11:24:46-04:00" pubdate data-updated="true">May 29<span>th</span>, 2014</time>
+        
+      </p>
     
   </header>
-  
-  <div id="blog-archives">
 
 
+<div class="entry-content"><p><a href="https://github.com/doublemap/everyonepanic">Uptime Robot (free) + App Engine (free) + Twilio (cheap) = almost free
+downtime alerts!</a></p>
 
-  
-  <h2>2014</h2>
-
-<article>
-  
-<h1><a href="/blog/2014/05/29/everyone-panic/">Everyone Panic! Almost Free Downtime Phone Alerts</a></h1>
-<time datetime="2014-05-29T11:24:46-04:00" pubdate><span class='month'>May</span> <span class='day'>29</span> <span class='year'>2014</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/uptime-robot/'>Uptime Robot</a>, <a class='category' href='/blog/categories/appengine/'>appengine</a>, <a class='category' href='/blog/categories/python/'>python</a>, <a class='category' href='/blog/categories/twilio/'>twilio</a></span>
-</footer>
+<ol>
+<li>Uptime Robot notices that your website is not responding.</li>
+<li>Everyone Panic! checks Uptime Robot and sees that something is down.</li>
+<li>You get a call through Twilio telling you to panic.</li>
+<li>You get another call 15 minutes later because you still haven&rsquo;t fixed the
+problem.</li>
+</ol>
 
 
-</article>
+<p>Sure, it&rsquo;s easy to get emailed when your website goes down, but real
+honest-to-goodness phone calls have an immediacy that&rsquo;s hard to beat.</p>
 
+<p>Since our GPS bus-tracking system is used at all hours of the day, early on we
+introduced automated monitoring. But when everyone is asleep, emails and text
+messages go unnoticed until the morning and it sucks to not know where your
+bus is at 1am.</p>
 
+<p>We quickly whipped an app together using Python to tie
+Uptime Robot and Twilio together. If one of the items in Uptime Robot goes
+down then the Python app will ask Twilio to call us. We made it, put it on App
+Engine, and haven&rsquo;t touched it since. With zero maintenance, it dutifully
+watches Uptime Robot for any websites that are down.</p>
 
-<article>
-  
-<h1><a href="/blog/2014/04/29/porting-600k-map-views-to-openstreetmap/">Porting 600k Map Views to OpenStreetMap/MapBox</a></h1>
-<time datetime="2014-04-29T10:25:45-04:00" pubdate><span class='month'>Apr</span> <span class='day'>29</span> <span class='year'>2014</span></time>
+<p>Literally, there have been zero commits to the original repo since the first
+day. Now I&rsquo;ve taken the code, cleaned it up, and
+<a href="https://github.com/doublemap/everyonepanic">put it up on GitHub</a>.</p>
 
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/openstreetmap/'>OpenStreetMap</a>, <a class='category' href='/blog/categories/javascript/'>javascript</a></span>
-</footer>
+<p>It&rsquo;s not entirely free &ndash; you&rsquo;ll need to pay Twilio for voice calls, but the
+price is $0.02 per call and it&rsquo;s hard to think of a situation where knowing
+your website is down isn&rsquo;t worth two cents. And, of course, you should keep
+your Twilio account balance in the black.</p>
 
+<p>But for the hobbyist who doesn&rsquo;t mind trying out a new app, this is a really
+simple way to have your phone ring when Hacker News tramples your latest pet
+project.</p>
 
-</article>
-
+<p><a href="https://github.com/doublemap/everyonepanic">Everyone Panic! on GitHub</a></p>
 </div>
 
+
+  <footer>
+    <p class="meta">
+      
   
+
+<span class="byline author vcard">Posted by <span class="fn">The DoubleMap team</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-05-29T11:24:46-04:00" pubdate data-updated="true">May 29<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/uptime-robot/'>Uptime Robot</a>, <a class='category' href='/blog/categories/appengine/'>appengine</a>, <a class='category' href='/blog/categories/python/'>python</a>, <a class='category' href='/blog/categories/twilio/'>twilio</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://doublemap.github.io/blog/2014/05/29/everyone-panic/" data-via="doublemap" data-counturl="http://doublemap.github.io/blog/2014/05/29/everyone-panic/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/04/29/porting-600k-map-views-to-openstreetmap/" title="Previous Post: Porting 600k map views to OpenStreetMap/MapBox">&laquo; Porting 600k map views to OpenStreetMap/MapBox</a>
+      
+      
+    </p>
+  </footer>
 </article>
 
 </div>

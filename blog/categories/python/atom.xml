@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Python | DoubleMap Engineering]]></title>
+  <link href="http://doublemap.github.io/blog/categories/python/atom.xml" rel="self"/>
+  <link href="http://doublemap.github.io/"/>
+  <updated>2014-05-28T10:45:32-04:00</updated>
+  <id>http://doublemap.github.io/</id>
+  <author>
+    <name><![CDATA[The DoubleMap team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Everyone Panic! Almost Free Downtime Phone Alerts]]></title>
+    <link href="http://doublemap.github.io/blog/2014/05/29/everyone-panic/"/>
+    <updated>2014-05-29T11:24:46-04:00</updated>
+    <id>http://doublemap.github.io/blog/2014/05/29/everyone-panic</id>
+    <content type="html"><![CDATA[<p><a href="https://github.com/doublemap/everyonepanic">Uptime Robot (free) + App Engine (free) + Twilio (cheap) = almost free
+downtime alerts!</a></p>
+
+<ol>
+<li>Uptime Robot notices that your website is not responding.</li>
+<li>Everyone Panic! checks Uptime Robot and sees that something is down.</li>
+<li>You get a call through Twilio telling you to panic.</li>
+<li>You get another call 15 minutes later because you still haven&rsquo;t fixed the
+problem.</li>
+</ol>
+
+
+<p>Sure, it&rsquo;s easy to get emailed when your website goes down, but real
+honest-to-goodness phone calls have an immediacy that&rsquo;s hard to beat.</p>
+
+<p>Since our GPS bus-tracking system is used at all hours of the day, early on we
+introduced automated monitoring. But when everyone is asleep, emails and text
+messages go unnoticed until the morning and it sucks to not know where your
+bus is at 1am.</p>
+
+<p>We quickly whipped an app together using Python to tie
+Uptime Robot and Twilio together. If one of the items in Uptime Robot goes
+down then the Python app will ask Twilio to call us. We made it, put it on App
+Engine, and haven&rsquo;t touched it since. With zero maintenance, it dutifully
+watches Uptime Robot for any websites that are down.</p>
+
+<p>Literally, there have been zero commits to the original repo since the first
+day. Now I&rsquo;ve taken the code, cleaned it up, and
+<a href="https://github.com/doublemap/everyonepanic">put it up on GitHub</a>.</p>
+
+<p>It&rsquo;s not entirely free &ndash; you&rsquo;ll need to pay Twilio for voice calls, but the
+price is $0.02 per call and it&rsquo;s hard to think of a situation where knowing
+your website is down isn&rsquo;t worth two cents. And, of course, you should keep
+your Twilio account balance in the black.</p>
+
+<p>But for the hobbyist who doesn&rsquo;t mind trying out a new app, this is a really
+simple way to have your phone ring when Hacker News tramples your latest pet
+project.</p>
+
+<p><a href="https://github.com/doublemap/everyonepanic">Everyone Panic! on GitHub</a></p>
+]]></content>
+  </entry>
+  
+</feed>
