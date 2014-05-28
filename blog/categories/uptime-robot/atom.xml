@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Uptime Robot | DoubleMap Engineering]]></title>
   <link href="http://doublemap.github.io/blog/categories/uptime-robot/atom.xml" rel="self"/>
   <link href="http://doublemap.github.io/"/>
-  <updated>2014-05-28T10:45:32-04:00</updated>
+  <updated>2014-05-28T10:51:13-04:00</updated>
   <id>http://doublemap.github.io/</id>
   <author>
     <name><![CDATA[The DoubleMap team]]></name>
@@ -41,12 +41,13 @@ bus is at 1am.</p>
 <p>We quickly whipped an app together using Python to tie
 Uptime Robot and Twilio together. If one of the items in Uptime Robot goes
 down then the Python app will ask Twilio to call us. We made it, put it on App
-Engine, and haven&rsquo;t touched it since. With zero maintenance, it dutifully
+Engine, and haven&rsquo;t touched it since. Even though our automated monitoring has
+grown since then, this little app, with zero maintenance, still dutifully
 watches Uptime Robot for any websites that are down.</p>
 
 <p>Literally, there have been zero commits to the original repo since the first
-day. Now I&rsquo;ve taken the code, cleaned it up, and
-<a href="https://github.com/doublemap/everyonepanic">put it up on GitHub</a>.</p>
+day. Now the code&rsquo;s been cleaned up and
+<a href="https://github.com/doublemap/everyonepanic">put on GitHub</a>.</p>
 
 <p>It&rsquo;s not entirely free &ndash; you&rsquo;ll need to pay Twilio for voice calls, but the
 price is $0.02 per call and it&rsquo;s hard to think of a situation where knowing
