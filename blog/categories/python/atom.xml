@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Python | DoubleMap Engineering]]></title>
   <link href="http://doublemap.github.io/blog/categories/python/atom.xml" rel="self"/>
   <link href="http://doublemap.github.io/"/>
-  <updated>2014-05-28T10:51:13-04:00</updated>
+  <updated>2014-05-29T10:07:22-04:00</updated>
   <id>http://doublemap.github.io/</id>
   <author>
     <name><![CDATA[The DoubleMap team]]></name>
@@ -47,7 +47,8 @@ watches Uptime Robot for any websites that are down.</p>
 
 <p>Literally, there have been zero commits to the original repo since the first
 day. Now the code&rsquo;s been cleaned up and
-<a href="https://github.com/doublemap/everyonepanic">put on GitHub</a>.</p>
+<a href="https://github.com/doublemap/everyonepanic">put on GitHub</a>. You can download
+it, configure it, and throw it onto App Engine or Heroku in a few minutes.</p>
 
 <p>It&rsquo;s not entirely free &ndash; you&rsquo;ll need to pay Twilio for voice calls, but the
 price is $0.02 per call and it&rsquo;s hard to think of a situation where knowing
