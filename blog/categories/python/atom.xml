@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Python | DoubleMap Engineering]]></title>
   <link href="http://doublemap.github.io/blog/categories/python/atom.xml" rel="self"/>
   <link href="http://doublemap.github.io/"/>
-  <updated>2015-05-29T12:19:48-04:00</updated>
+  <updated>2015-05-29T12:26:04-04:00</updated>
   <id>http://doublemap.github.io/</id>
   <author>
     <name><![CDATA[The DoubleMap team]]></name>
@@ -163,8 +163,8 @@ I renamed <code>haversine.py</code> to <code>haversine.pyx</code> and created a 
 </span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">)</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
-<p>Running <code>python setup.py install</code> built <code>haversine.so</code> out of my unmodified
-Python code. Easy-peasy.</p>
+<p>Running <code>python setup.py build_ext --inplace</code> built <code>haversine.so</code> out of my
+unmodified Python code. Easy-peasy.</p>
 
 <p>Benchmark results (300,000 iterations):</p>
 
