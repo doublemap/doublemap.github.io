@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Python | DoubleMap Engineering]]></title>
   <link href="http://doublemap.github.io/blog/categories/python/atom.xml" rel="self"/>
   <link href="http://doublemap.github.io/"/>
-  <updated>2015-05-29T12:26:04-04:00</updated>
+  <updated>2015-05-29T12:55:06-04:00</updated>
   <id>http://doublemap.github.io/</id>
   <author>
     <name><![CDATA[The DoubleMap team]]></name>
@@ -286,7 +286,7 @@ pretty much everything:</p>
 importantly, we&rsquo;re still writing what&rsquo;s basically Python. We don&rsquo;t have to
 remember to free our variables or check our array bounds. That additional
 safety is not free (and there are various flags to disable Cython safety
-checks) but with Cython optimizing a Python function doesn&rsquo;t have to be a
+checks) but with Cython, optimizing a Python function doesn&rsquo;t have to be a
 rewrite-everything task.</p>
 
 <p>We probably could have gone further in optimizing this, but these speed-ups
