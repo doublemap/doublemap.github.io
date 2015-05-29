@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Python | DoubleMap Engineering]]></title>
   <link href="http://doublemap.github.io/blog/categories/python/atom.xml" rel="self"/>
   <link href="http://doublemap.github.io/"/>
-  <updated>2014-05-29T10:13:55-04:00</updated>
+  <updated>2015-05-29T12:19:48-04:00</updated>
   <id>http://doublemap.github.io/</id>
   <author>
     <name><![CDATA[The DoubleMap team]]></name>
@@ -14,54 +14,290 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Everyone Panic! Almost Free Downtime Phone Alerts]]></title>
-    <link href="http://doublemap.github.io/blog/2014/05/29/everyone-panic/"/>
-    <updated>2014-05-29T11:24:46-04:00</updated>
-    <id>http://doublemap.github.io/blog/2014/05/29/everyone-panic</id>
-    <content type="html"><![CDATA[<p><a href="https://github.com/doublemap/everyonepanic">Uptime Robot (free) + App Engine (free) + Twilio (cheap) = almost free
-downtime alerts!</a></p>
+    <title type="html"><![CDATA[Optimizing Python With Cython]]></title>
+    <link href="http://doublemap.github.io/blog/2015/05/29/optimizing-python/"/>
+    <updated>2015-05-29T11:09:00-04:00</updated>
+    <id>http://doublemap.github.io/blog/2015/05/29/optimizing-python</id>
+    <content type="html"><![CDATA[<p>Python is slow. It&rsquo;s still faster than a lot of other languages, but
+describing Python code as &ldquo;fast&rdquo; will probably get some weird looks from
+people who use compiled or JITted languages.</p>
 
-<ol>
-<li>Uptime Robot notices that your website is not responding.</li>
-<li>Everyone Panic! checks Uptime Robot and sees that something is down.</li>
-<li>You get a call through Twilio telling you to panic.</li>
-<li>You get another call 15 minutes later because you still haven&rsquo;t fixed the
-problem.</li>
-</ol>
+<p>Still, I love Python for its design and speed at which I can write good code.
+Most of the time, when writing Python for distributed or web applications, it
+doesn&rsquo;t matter. Your runtime is usually dominated by network traffic or data
+accesses than it is by raw computational speed. In those cases, the correct
+optimization is often reducing network requests or indexing your data.</p>
 
+<p>Sometimes&mdash;just occasionally&mdash;we actually do need fast computation.
+Traditional Python wisdom has been to profile your code (perhaps using
+cProfile), identify the hot spot, and rewrite it in C as a Python extension.
+I&rsquo;ve had to do that before for a handwriting recognition algorithm with great
+success (it turned a 2&ndash;3 second computation into a practically
+real-time one), but writing C code and then figuring out the FFI was a pain.
+I had to rewrite the algorithm in C, verify that my C version was correct and
+didn&rsquo;t have memory errors, and then figure out the right incantations to get
+it to cooperate with Python.</p>
 
-<p>Sure, it&rsquo;s easy to get emailed when your website goes down, but real
-honest-to-goodness phone calls have an immediacy that&rsquo;s hard to beat.</p>
+<p>Let&rsquo;s try something different this time.</p>
 
-<p>Since our GPS bus-tracking system is used at all hours of the day, early on we
-introduced automated monitoring. But when everyone is asleep, emails and text
-messages go unnoticed until the morning and it sucks to not know where your
-bus is at 1am.</p>
+<h2>Problem</h2>
 
-<p>We quickly whipped an app together using Python to tie
-Uptime Robot and Twilio together. If one of the items in Uptime Robot goes
-down then the Python app will ask Twilio to call us. We made it, put it on App
-Engine, and haven&rsquo;t touched it since. Even though our automated monitoring has
-grown since then, this little app, with zero maintenance, still dutifully
-watches Uptime Robot for any websites that are down.</p>
+<p>At DoubleMap, geographic distance calculation is something that gets used a
+lot, and we use the haversine function to calculate distance between two
+points on Earth. In some of our data analysis, we might run the haversine
+function millions of times in a tight loop, and it was causing some reports to
+take way too long.</p>
 
-<p>Literally, there have been zero commits to the original repo since the first
-day. Now the code&rsquo;s been cleaned up and
-<a href="https://github.com/doublemap/everyonepanic">put on GitHub</a>. You can download
-it, configure it, and throw it onto App Engine or Heroku in a few minutes.</p>
+<p>Profiling the code showed that the two heaviest operations were fetching data
+from the data store and the haversine function.</p>
 
-<p>It&rsquo;s not entirely free &ndash; you&rsquo;ll need to pay Twilio for voice calls, but the
-price is $0.02 per call and it&rsquo;s hard to think of a situation where knowing
-your website is down isn&rsquo;t worth two cents. And, of course, you should keep
-your Twilio account balance in the black.</p>
+<p><strong>Play along at home:</strong> Clone the repo at
+<a href="https://github.com/doublemap/haversine-optimization">https://github.com/doublemap/haversine-optimization</a> and start from the first
+commit to see how the code changes step by step.</p>
 
-<p>But for the hobbyist who doesn&rsquo;t mind trying out a new app, this is a really
-simple way to have your phone ring when Hacker News tramples your latest pet
-project.</p>
+<p>The commands you should know are <code>pip install cython</code> and <code>python setup.py
+build_ext --inplace</code>.</p>
 
-<p><a href="https://github.com/doublemap/everyonepanic">Everyone Panic! on GitHub</a></p>
+<h2>Original code</h2>
 
-<p><a href="https://news.ycombinator.com/item?id=7816241">Comments on Hacker News</a></p>
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">sin</span><span class="p">,</span> <span class="n">cos</span><span class="p">,</span> <span class="n">acos</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="k">def</span> <span class="nf">haversine</span><span class="p">(</span><span class="n">coord1</span><span class="p">,</span> <span class="n">coord2</span><span class="p">):</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="s">&quot;&quot;&quot;Given two (lat, lng) tuples, returns the distance between them in</span>
+</span><span class='line'><span class="s">meters.&quot;&quot;&quot;</span>
+</span><span class='line'><span class="n">lat1</span><span class="p">,</span> <span class="n">lng1</span> <span class="o">=</span> <span class="n">coord1</span>
+</span><span class='line'><span class="n">lat2</span><span class="p">,</span> <span class="n">lng2</span> <span class="o">=</span> <span class="n">coord2</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="n">lat1</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="mi">90</span> <span class="ow">or</span> <span class="n">lat1</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="o">-</span><span class="mi">90</span> <span class="ow">or</span> <span class="n">lat2</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="mi">90</span> <span class="ow">or</span> <span class="n">lat2</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="o">-</span><span class="mi">90</span><span class="p">:</span>
+</span><span class='line'>    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Invalid latitude (should be between +/- 90)&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="k">if</span> <span class="n">lng1</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="mi">180</span> <span class="ow">or</span> <span class="n">lng1</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="o">-</span><span class="mi">180</span> <span class="ow">or</span> <span class="n">lng2</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="mi">180</span> <span class="ow">or</span> <span class="n">lng2</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="o">-</span><span class="mi">180</span><span class="p">:</span>
+</span><span class='line'>    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Invalid longitude (should be between +/- 180)&quot;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">phi1</span> <span class="o">=</span> <span class="p">(</span><span class="mf">90.0</span> <span class="o">-</span> <span class="n">lat1</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.0174532925</span>
+</span><span class='line'><span class="n">phi2</span> <span class="o">=</span> <span class="p">(</span><span class="mf">90.0</span> <span class="o">-</span> <span class="n">lat2</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.0174532925</span>
+</span><span class='line'><span class="n">theta1</span> <span class="o">=</span> <span class="n">lng1</span> <span class="o">*</span> <span class="mf">0.0174532925</span>
+</span><span class='line'><span class="n">theta2</span> <span class="o">=</span> <span class="n">lng2</span> <span class="o">*</span> <span class="mf">0.0174532925</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="n">sin</span><span class="p">(</span><span class="n">phi1</span><span class="p">)</span> <span class="o">*</span> <span class="n">sin</span><span class="p">(</span><span class="n">phi2</span><span class="p">)</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">theta1</span> <span class="o">-</span> <span class="n">theta2</span><span class="p">)</span> <span class="o">+</span> <span class="n">cos</span><span class="p">(</span><span class="n">phi1</span><span class="p">)</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">phi2</span><span class="p">))</span>
+</span><span class='line'><span class="n">arc</span> <span class="o">=</span> <span class="n">acos</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+</span><span class='line'><span class="k">return</span> <span class="n">arc</span> <span class="o">*</span> <span class="mf">6367444.7</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Also, here&rsquo;s the benchmark code that is used throughout:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">from</span> <span class="o">&lt;</span><span class="n">strong</span><span class="o">&gt;</span><span class="n">future</span><span class="o">&lt;/</span><span class="n">strong</span><span class="o">&gt;</span> <span class="kn">import</span> <span class="nn">print_function</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">timeit</span> <span class="kn">import</span> <span class="n">timeit</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="k">print</span><span class="p">(</span><span class="n">timeit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ldquo</span><span class="p">;</span><span class="n">haversine</span><span class="p">((</span><span class="mf">39.132213</span><span class="p">,</span> <span class="o">-</span><span class="mf">86.12439</span><span class="p">),</span> <span class="p">(</span><span class="mf">38.55213</span><span class="p">,</span> <span class="o">-</span><span class="mf">86.94910</span><span class="p">))</span><span class="o">&amp;</span><span class="n">rdquo</span><span class="p">;,</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span>         <span class="n">setup</span><span class="o">=</span><span class="s">&quot;from haversine import haversine&quot;</span><span class="p">,</span>
+</span><span class='line'>         <span class="n">number</span><span class="o">=</span><span class="mi">300000</span><span class="p">))</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Pretty straightforward. Let&rsquo;s try pre-compiling this code into a C extension
+to see if that helps.</p>
+
+<p>Following the
+<a href="http://docs.cython.org/src/tutorial/cython_tutorial.html">Cython Basic Tutorial</a>,
+I renamed <code>haversine.py</code> to <code>haversine.pyx</code> and created a <code>setup.py</code> file:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">from</span> <span class="nn">distutils.core</span> <span class="kn">import</span> <span class="n">setup</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">Cython.Build</span> <span class="kn">import</span> <span class="n">cythonize</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">setup</span><span class="p">(</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">ext_modules</span> <span class="o">=</span> <span class="n">cythonize</span><span class="p">(</span><span class="s">&quot;haversine.pyx&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Running <code>python setup.py install</code> built <code>haversine.so</code> out of my unmodified
+Python code. Easy-peasy.</p>
+
+<p>Benchmark results (300,000 iterations):</p>
+
+<p><strong>Original code:</strong> 2.85 seconds<br/>
+<strong>Compiled:</strong> 2.01 seconds</p>
+
+<p>So, 29% time savings without any modification to the original code.</p>
+
+<h2>C math functions</h2>
+
+<p>Currently, we&rsquo;re still using Python&rsquo;s math functions. Let&rsquo;s see if we can cut
+out some overhead by importing <code>math.h</code> instead.</p>
+
+<p>Except, since this is Cython, all we need to do is:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='diff'><span class='line'>&amp;mdash;&amp;ndash; a/haversine.pyx
+</span><span class='line'><span class="gi">+++ b/haversine.pyx</span>
+</span><span class='line'><span class="gu">@@ -1,4 +1,4 @@</span>
+</span><span class='line'><span class="gd">-from math import sin, cos, acos</span>
+</span><span class='line'><span class="gi">+from libc.math cimport sin, cos, acos</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Benchmark results (300,000 iterations):</p>
+
+<p><strong>Original code:</strong> 2.85 seconds<br/>
+<strong>Compiled:</strong> 2.01 seconds<br/>
+<strong>libc.math:</strong> 1.33 seconds</p>
+
+<p>So far we&rsquo;ve saved 53% of the time from the original code.</p>
+
+<h2>C types</h2>
+
+<p>Cython&rsquo;s biggest extension of the Python language is its type annotations.
+Speed ups can be had by telling Cython the types of each variable in advance.
+We are dealing with geographic coordinates, so we&rsquo;ll be using doubles for
+pretty much everything:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">def</span> <span class="nf">haversine</span><span class="p">(</span><span class="nb">tuple</span> <span class="n">coord1</span><span class="p">,</span> <span class="nb">tuple</span> <span class="n">coord2</span><span class="p">):</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="s">&quot;&quot;&quot;Given two (lat, lng) tuples, returns the distance between them in</span>
+</span><span class='line'><span class="s">meters.&quot;&quot;&quot;</span>
+</span><span class='line'><span class="n">cdef</span> <span class="n">double</span> <span class="n">lat1</span>
+</span><span class='line'><span class="n">cdef</span> <span class="n">double</span> <span class="n">lng1</span>
+</span><span class='line'><span class="n">cdef</span> <span class="n">double</span> <span class="n">lat2</span>
+</span><span class='line'><span class="n">cdef</span> <span class="n">double</span> <span class="n">lng2</span>
+</span><span class='line'><span class="n">lat1</span><span class="p">,</span> <span class="n">lng1</span> <span class="o">=</span> <span class="n">coord1</span>
+</span><span class='line'><span class="n">lat2</span><span class="p">,</span> <span class="n">lng2</span> <span class="o">=</span> <span class="n">coord2</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="n">lat1</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="mi">90</span> <span class="ow">or</span> <span class="n">lat1</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="o">-</span><span class="mi">90</span> <span class="ow">or</span> <span class="n">lat2</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="mi">90</span> <span class="ow">or</span> <span class="n">lat2</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="o">-</span><span class="mi">90</span><span class="p">:</span>
+</span><span class='line'>    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Invalid latitude (should be between +/- 90)&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="k">if</span> <span class="n">lng1</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="mi">180</span> <span class="ow">or</span> <span class="n">lng1</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="o">-</span><span class="mi">180</span> <span class="ow">or</span> <span class="n">lng2</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="mi">180</span> <span class="ow">or</span> <span class="n">lng2</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="o">-</span><span class="mi">180</span><span class="p">:</span>
+</span><span class='line'>    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Invalid longitude (should be between +/- 180)&quot;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">cdef</span> <span class="n">double</span> <span class="n">ph1</span>
+</span><span class='line'><span class="n">cdef</span> <span class="n">double</span> <span class="n">ph2</span>
+</span><span class='line'><span class="n">cdef</span> <span class="n">double</span> <span class="n">theta1</span>
+</span><span class='line'><span class="n">cdef</span> <span class="n">double</span> <span class="n">theta2</span>
+</span><span class='line'><span class="n">cdef</span> <span class="n">double</span> <span class="n">c</span>
+</span><span class='line'><span class="n">cdef</span> <span class="n">double</span> <span class="n">arc</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">phi1</span> <span class="o">=</span> <span class="p">(</span><span class="mf">90.0</span> <span class="o">-</span> <span class="n">lat1</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.0174532925</span>
+</span><span class='line'><span class="n">phi2</span> <span class="o">=</span> <span class="p">(</span><span class="mf">90.0</span> <span class="o">-</span> <span class="n">lat2</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.0174532925</span>
+</span><span class='line'><span class="n">theta1</span> <span class="o">=</span> <span class="n">lng1</span> <span class="o">*</span> <span class="mf">0.0174532925</span>
+</span><span class='line'><span class="n">theta2</span> <span class="o">=</span> <span class="n">lng2</span> <span class="o">*</span> <span class="mf">0.0174532925</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="n">sin</span><span class="p">(</span><span class="n">phi1</span><span class="p">)</span> <span class="o">*</span> <span class="n">sin</span><span class="p">(</span><span class="n">phi2</span><span class="p">)</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">theta1</span> <span class="o">-</span> <span class="n">theta2</span><span class="p">)</span> <span class="o">+</span> <span class="n">cos</span><span class="p">(</span><span class="n">phi1</span><span class="p">)</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">phi2</span><span class="p">))</span>
+</span><span class='line'><span class="n">arc</span> <span class="o">=</span> <span class="n">acos</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+</span><span class='line'><span class="k">return</span> <span class="n">arc</span> <span class="o">*</span> <span class="mf">6367444.7</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p><strong>Original code:</strong> 2.85 seconds<br/>
+<strong>Compiled:</strong> 2.01 seconds<br/>
+<strong>libc.math:</strong> 1.33 seconds<br/>
+<strong>C types:</strong> 0.466 seconds</p>
+
+<p>In three easy steps, we&rsquo;ve reduced the run time of this function by 84%. More
+importantly, we&rsquo;re still writing what&rsquo;s basically Python. We don&rsquo;t have to
+remember to free our variables or check our array bounds. That additional
+safety is not free (and there are various flags to disable Cython safety
+checks) but with Cython optimizing a Python function doesn&rsquo;t have to be a
+rewrite-everything task.</p>
+
+<p>We probably could have gone further in optimizing this, but these speed-ups
+got us into &ldquo;good enough&rdquo; territory, and that&rsquo;s good enough.</p>
+
+<h2>Distribution</h2>
+
+<p>Our optimized haversine function is available on PyPI under the name
+&ldquo;cHaversine&rdquo;. One key difference is that the distributed tarball includes the
+C code generated by Cython so that you, as the package user, don&rsquo;t need Cython
+to download and build the C extension.</p>
 ]]></content>
   </entry>
   
